@@ -5,11 +5,14 @@ import (
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/net/ghttp"
 	"github.com/gogf/gf/v2/os/gctx"
+	"github.com/gogf/gf/v2/os/glog"
 	"go.opentelemetry.io/otel/exporters/prometheus"
 )
 
 func main() {
 	var ctx = gctx.New()
+	glog.SetDefaultHandler(LoggingJsonHandler)
+
 	// Prometheus exporter to export metrics as Prometheus format.
 	exporter, _ := prometheus.New()
 	// OpenTelemetry provider.
@@ -21,6 +24,7 @@ func main() {
 
 	s := g.Server()
 	s.BindHandler("/hello", func(r *ghttp.Request) {
+		g.Log().Info(r.Context(), "hello world!!!")
 		r.Response.Write("hello world")
 	})
 	s.BindHandler("/metrics", otelmetric.PrometheusHandler)
