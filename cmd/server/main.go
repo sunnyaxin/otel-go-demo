@@ -11,9 +11,10 @@ import (
 
 func main() {
 	var ctx = gctx.New()
+	// Set custom JSON logging handler to match google structured logging format.
 	glog.SetDefaultHandler(LoggingJsonHandler)
 
-	// Prometheus exporter to export metrics as Prometheus format.
+	// Set up OpenTelemetry Prometheus exporter to export metric as prometheus format.
 	exporter, _ := prometheus.New()
 	// OpenTelemetry provider.
 	provider := otelmetric.MustProvider(
@@ -27,6 +28,7 @@ func main() {
 		g.Log().Info(r.Context(), "hello world!!!")
 		r.Response.Write("hello world")
 	})
+	// Prometheus metrics endpoint
 	s.BindHandler("/metrics", otelmetric.PrometheusHandler)
 	s.SetPort(8080)
 	s.Run()
