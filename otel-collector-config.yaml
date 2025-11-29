@@ -18,6 +18,13 @@ processors:
   memory_limiter:
     check_interval: 1s
     limit_mib: 4000
+  filter/ottl:
+    metrics:
+      datapoint:
+        - attributes["http.route"] == "/metrics"
+    traces:
+      span:
+        - attributes["url.path"] == "/metrics"
 
 exporters:
   debug:
@@ -27,9 +34,9 @@ service:
   pipelines:
     traces:
       receivers: [otlp]
-      processors: [memory_limiter, batch]
+      processors: [memory_limiter, batch, filter/ottl]
       exporters: [debug]
     metrics:
       receivers: [prometheus_simple]
-      processors: [memory_limiter, batch]
+      processors: [memory_limiter, batch, filter/ottl]
       exporters: [debug]
