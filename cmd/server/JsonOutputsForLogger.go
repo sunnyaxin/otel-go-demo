@@ -5,11 +5,13 @@ import (
 	"encoding/json"
 
 	"github.com/gogf/gf/v2/os/glog"
+	"go.opentelemetry.io/otel/trace"
 )
 
 type HandlerOutputJson struct {
 	Timestamp string `json:"timestamp"`                                      // Formatted time string, like "2016-01-09 12:00:00".
 	TraceId   string `json:"logging.googleapis.com/trace,omitempty"`         // Trace id, only available if tracing is enabled.
+	SpanId    string `json:"logging.googleapis.com/spanId,omitempty"`        // Trace id, only available if tracing is enabled.
 	Sampled   bool   `json:"logging.googleapis.com/trace_sampled,omitempty"` // Trace id, only available if tracing is enabled.
 	Level     string `json:"severity"`                                       // Formatted level string, like "DEBU", "ERRO", etc. Eg: ERRO
 	Content   string `json:"message"`                                        // Content is the main logging content, containing error stack string produced by logger.
@@ -34,9 +36,16 @@ var LoggingJsonHandler glog.Handler = func(ctx context.Context, in *glog.Handler
 	if in.TraceId == "" {
 		sampled = false
 	}
+	SpanId := ""
+	if trace.SpanFromContext(ctx).SpanContext().SpanID().IsValid() {
+		SpanId = trace.SpanFromContext(ctx).SpanContext().SpanID().String()
+
+	}
+
 	output := HandlerOutputJson{
 		Timestamp: in.TimeFormat,
 		TraceId:   in.TraceId,
+		SpanId:    SpanId,
 		Sampled:   sampled,
 		Level:     levelMapping(in.LevelFormat),
 		Content:   in.Content,
