@@ -23,16 +23,16 @@ services:
     depends_on:
       - app
       - otel-collector
-    pid: "service:app"
+    pid: "service:app"  # 共享目标容器的进程命名空间
     restart: unless-stopped
-    privileged: true
+    privileged: true  # 需要特权模式
     security_opt:
       - apparmor:unconfined
     cap_add:
-      - SYS_ADMIN
-      - SYS_PTRACE
-      - SYS_RESOURCE
-      - PERFMON
+      - SYS_ADMIN  # 管理内核功能
+      - SYS_PTRACE  # 附加到进程
+      - SYS_RESOURCE  # 调整资源限制
+      - PERFMON # 性能监控
     environment:
       - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4317
       - OTEL_EXPORTER_OTLP_PROTOCOL=grpc
@@ -44,6 +44,6 @@ services:
       - OTEL_GO_AUTO_TARGET_EXE=/usr/local/bin/server
       - OTEL_LOG_LEVEL=debug
     volumes:
-      - /sys/kernel/debug:/sys/kernel/debug
-      - /sys/fs/bpf:/sys/fs/bpf
-      - /sys/kernel/tracing:/sys/kernel/tracing
+      - /sys/kernel/debug:/sys/kernel/debug # eBPF 调试接口
+      - /sys/fs/bpf:/sys/fs/bpf # eBPF 文件系统
+      - /sys/kernel/tracing:/sys/kernel/tracing # 内核追踪
